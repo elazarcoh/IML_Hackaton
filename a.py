@@ -1,3 +1,8 @@
-import pandas as pd
+import numpy as np
 
-f = pd.read_table('human.txt')
+
+def prepare_data(data):
+    pass
+
+
+d = np.loadtxt('human.txt',dtype=str)

@@ -47,7 +47,12 @@ def numberOfOnes(vector, k):
     return np.histogram(vector[-k:],2)
 
 
-def meanOfIncreasingSeqs(vector, k):
+def numOfIncreasingSeqs(vector, k):
+    """
+    :param vector:
+    :param k:
+    :return: number of increasing sequences of ones
+    """
     if len(vector) < k:
         return 0
     vector = vector[-k:]
@@ -60,16 +65,21 @@ def meanOfIncreasingSeqs(vector, k):
             ones.append(counter)
             counter = 0
     counterForIncreasingSeq = 0
-    numberOfSeqs = []
     for i in range(len(ones) - 1):
-        if ones[i] > ones[i + 1]:
+        if ones[i + 1] > ones[i]:
             counterForIncreasingSeq += 1
-        elif ones[i] < ones[i + 1]:
-            numberOfSeqs.append(counterForIncreasingSeq)
-            counterForIncreasingSeq = 0
-    return np.mean(np.asarray(counterForIncreasingSeq))
+    return counterForIncreasingSeq
+
+
+def getFeatures(vector, k):
+    features = []
+    features.append(zerosInARow(vector, k))
+    features.append(onesInARow(vector, k))
+    features.append(numOfAlternations(vector, k))
+    features.append(numberOfOnes(vector, k)[0][1])
+    features.append(numOfIncreasingSeqs(vector, k))
+    return features
 
 
 
-
-print(meanOfIncreasingSeqs([0,0,0,1,1,1,0,1,1,1,0,1,1],10))
+print(getFeatures([0,0,0,1,1,1,0,1,1,1,0,1,1],10))

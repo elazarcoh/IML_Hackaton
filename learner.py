@@ -15,4 +15,3 @@ class Learner:
 
     def predict_seq(self, seq, k):
         pass
-pass

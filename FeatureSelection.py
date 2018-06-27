@@ -25,6 +25,7 @@ def onesInARow(vector, k):
             counter = 0
     return np.mean(np.asarray(ones))
 
+
 def numOfAlternations(vector, k):
     vector = vector[-k:]
     counter = 0
@@ -33,3 +34,9 @@ def numOfAlternations(vector, k):
             counter += 1
     return counter
 
+
+def numberOfOnes(vector, k):
+    return np.histogram(vector[-k:],2)
+
+
+print(numberOfOnes([1,1,0],3))

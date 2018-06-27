@@ -5,3 +5,4 @@ def zerosInARow(vector):
     return
 
 def onesInARow(vector):
+    return

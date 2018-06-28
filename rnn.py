@@ -1,8 +1,3 @@
-#  Name: 
-#  Author: rotem.tal
-#  Description:
-#
-
 """
 Minimal character-level Vanilla RNN model. Written by Andrej Karpathy (@karpathy)
 BSD License
@@ -10,11 +5,10 @@ BSD License
 import numpy as np
 
 # data I/O
-data = open('input.txt', 'r').read()  # should be simple plain text file
-chars = list(set(data))
+data = open('human.txt', 'r').readlines()[0]  # should be simple plain text file
+chars = ['1', '0']
 data_size, vocab_size = len(data), len(chars)
-print
-'data has %d characters, %d unique.' % (data_size, vocab_size)
+print('data has %d characters, %d unique.' % (data_size, vocab_size))
 char_to_ix = {ch: i for i, ch in enumerate(chars)}
 ix_to_char = {i: ch for i, ch in enumerate(chars)}
 
@@ -41,7 +35,7 @@ def lossFun(inputs, targets, hprev):
     hs[-1] = np.copy(hprev)
     loss = 0
     # forward pass
-    for t in xrange(len(inputs)):
+    for t in range(len(inputs)):
         xs[t] = np.zeros((vocab_size, 1))  # encode in 1-of-k representation
         xs[t][inputs[t]] = 1
         hs[t] = np.tanh(
@@ -56,7 +50,7 @@ def lossFun(inputs, targets, hprev):
         Why)
     dbh, dby = np.zeros_like(bh), np.zeros_like(by)
     dhnext = np.zeros_like(hs[0])
-    for t in reversed(xrange(len(inputs))):
+    for t in reversed(range(len(inputs))):
         dy = np.copy(ps[t])
         dy[targets[
             t]] -= 1  # backprop into y. see http://cs231n.github.io/neural-networks-case-study/#grad if confused here
@@ -82,7 +76,7 @@ def sample(h, seed_ix, n):
     x = np.zeros((vocab_size, 1))
     x[seed_ix] = 1
     ixes = []
-    for t in xrange(n):
+    for t in range(n):
         h = np.tanh(np.dot(Wxh, x) + np.dot(Whh, h) + bh)
         y = np.dot(Why, h) + by
         p = np.exp(y) / np.sum(np.exp(y))
@@ -109,14 +103,12 @@ while True:
     if n % 100 == 0:
         sample_ix = sample(hprev, inputs[0], 200)
         txt = ''.join(ix_to_char[ix] for ix in sample_ix)
-        print
-        '----\n %s \n----' % (txt,)
+        print('----\n %s \n----' % (txt,))
 
     # forward seq_length characters through the net and fetch gradient
     loss, dWxh, dWhh, dWhy, dbh, dby, hprev = lossFun(inputs, targets, hprev)
     smooth_loss = smooth_loss * 0.999 + loss * 0.001
-    if n % 100 == 0: print
-    'iter %d, loss: %f' % (n, smooth_loss)  # print progress
+    if n % 100 == 0: print('iter %d, loss: %f' % (n, smooth_loss))  # print progress
 
     # perform parameter update with Adagrad
     for param, dparam, mem in zip([Wxh, Whh, Why, bh, by],

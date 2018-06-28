@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import editdistance as ed
-
+from matplotlib.pyplot import *
 # from keras.layers import SimpleRNN, TimeDistributed, Dense
 # from keras.models import Sequential
 
@@ -43,8 +43,11 @@ test_data, test_labels = test_data
 def PCA():
     covM = np.cov(train_data)
     w, v = np.linalg.eig(covM)
-    proj = train_data @ v[:50]
-
+    proj = [[] for _ in range(len(test_data))]
+    for i in range(15):
+        proj
+    scatter(proj[0, :], proj[1, :])
+    show()
 
 PCA()
 # p = learner.knn(30)

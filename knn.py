@@ -11,9 +11,10 @@ A = np.array(A)
 
 
 class knn:
-    def __init__(self, k):
+    def __init__(self, k, num_bits):
         self.fitted = False
         self.k = k
+        self.num_bits = num_bits
 
     def fit(self, X, y):
         self.X = X
@@ -21,9 +22,16 @@ class knn:
         self.fitted = True
 
     def predict(self, x):
-        assert self.fitted
-        k_near = int(np.round(np.mean(self.y[self.k_nearest_neighbors_indices(x)])))
+        pred = x
+        for _ in range(self.num_bits):
+            pred += str(self.predict_bit(pred))
+        return pred[-self.num_bits:]
 
+    def predict_bit(self, x):
+        assert self.fitted
+        t = self.y[self.k_nearest_neighbors_indices(x)]
+        z = [int(s[-1]) for s in t]
+        k_near = int(np.round(np.mean(z)))
         return k_near
 
     def k_nearest_neighbors_indices(self, x):
@@ -45,35 +53,35 @@ def draw(data, test_size, xl, yl):
     train_labels = np.array([s[-yl:] for s in train_labels])
 
     test_data = data[:test_size]
-    train_labels = np.array([s[-xl - yl:-yl] for s in train_labels])
+    test_data = np.array([s[-xl - yl:-yl] for s in test_data])
 
     test_labels = data[:test_size]
-    train_labels = np.array([s[-yl:] for s in train_labels])
+    test_labels = np.array([s[-yl:] for s in test_labels])
 
     return (train_data, train_labels), (test_data, test_labels)
 
 
-def knn_procedure(k, test_size, l):
-    train_data, test_data = draw(A, test_size, 50, 1)
+def knn_procedure(k, test_size):
+    train_data, test_data = draw(A, test_size, 50, 20)
     train_data, train_labels = train_data
     test_data, test_labels = test_data
-    p = knn(k)
+    p = knn(k, 20)
     p.fit(train_data, train_labels)
-    return p.score(test_data, test_labels)
+    return p.score(test_data, test_labels), p
 
 
-K = range(1, 50, 2)
-repeat = 10
+K = [2, 6, 12, 18]
+repeat = 3
 knn_res = []
 test_size = 100
-
+ps = []
 for k in K:
-    res = sum(knn_procedure(45, test_size, k) for _ in range(repeat)) / repeat
-    knn_res.append(res)
-
-print(np.mean(list(map(str.__len__, A))))
-plt.hist(list(map(str.__len__, A)), 80)
-plt.show()
+    res = 0
+    for _ in range(repeat):
+        t, p = knn_procedure(k, test_size)
+        res += t
+    ps.append(p)
+    knn_res.append(res / repeat)
 
 plt.figure(0)
 plt.title("K nearest accuracy ratio")
@@ -83,3 +91,13 @@ plt.ylabel('accuracy ratio')
 
 plt.plot(K, knn_res)
 plt.show()
+
+train_data, test_data = draw(A, test_size, 50, 20)
+train_data, train_labels = train_data
+test_data, test_labels = test_data
+p = ps[3]
+z1 = p.predict(test_data[0])
+z2 = test_labels[0]
+print(editdistance.eval(z1, z2))
+print(z1)
+print(z2)

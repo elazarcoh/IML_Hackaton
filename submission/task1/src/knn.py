@@ -47,7 +47,6 @@ class knn:
 
 
 def draw(data, seq_len, predict_len):
-    np.random.shuffle(data)
     train_data = data
     train_data = np.array([s[-seq_len:] for s in train_data])
 
@@ -64,17 +63,17 @@ if __name__ == '__main__':
     for x in d:
         A.append(x)
     A = np.array(A)
-    train_data, end_seq = draw(A, 50, 20)
+    m = min(map(str.__len__, A))
+    seq, end_seq = draw(A, m, 20)
 
     k = 7
     knn_res = []
     test_size = 100
     ps = []
     p = knn(k, 20, 30)
-    p.fit(train_data, end_seq)
+    p.fit(seq, end_seq)
 
     with open(pred_out_file, 'w') as file:
         for x in A:
             z1 = p.predict(x)
             file.write(z1 + '\n')
-            file.write('\n')

@@ -10,11 +10,18 @@ for x in d:
 A = np.array(A)
 
 
+def hamming2(s1, s2):
+    """Calculate the Hamming distance between two bit strings"""
+    assert len(s1) == len(s2)
+    return sum(c1 != c2 for c1, c2 in zip(s1, s2))
+
+
 class knn:
-    def __init__(self, k, num_bits):
+    def __init__(self, k, num_bits_to_guess, input_num_bits):
         self.fitted = False
         self.k = k
-        self.num_bits = num_bits
+        self.num_bits = num_bits_to_guess
+        self.input_num_bits = input_num_bits
 
     def fit(self, X, y):
         self.X = X
@@ -30,18 +37,22 @@ class knn:
     def predict_bit(self, x):
         assert self.fitted
         t = self.y[self.k_nearest_neighbors_indices(x)]
-        z = [int(s[-1]) for s in t]
+        z = [int(s[0]) for s in t]
         k_near = int(np.round(np.mean(z)))
         return k_near
 
     def k_nearest_neighbors_indices(self, x):
-        dist = np.array([editdistance.eval(x[-20:], y[-20:]) for y in self.X])
+        # dist = np.array([editdistance.eval(x[-20:], y[-20:]) for y in self.X])
+        dist = np.array(
+            [hamming2(x[-self.input_num_bits:], y[-self.input_num_bits:]) for y in self.X])
         k_nearest = np.argsort(dist)[:self.k]
         return k_nearest
 
     def score(self, data, true_labels):
         predictions = np.array([self.predict(x) for x in data])
-        return np.mean((true_labels == predictions).sum(axis=0) / len(true_labels))
+        g = (1 - (hamming2(x, y) / len(x)) for x, y in zip(predictions, true_labels))
+        return sum(g) / len(true_labels)
+        # return np.mean((true_labels == predictions).sum(axis=0) / len(true_labels))
 
 
 def draw(data, test_size, xl, yl):
@@ -62,16 +73,16 @@ def draw(data, test_size, xl, yl):
 
 
 def knn_procedure(k, test_size):
-    train_data, test_data = draw(A, test_size, 50, 20)
+    train_data, test_data = draw(A, test_size, 30, 20)
     train_data, train_labels = train_data
     test_data, test_labels = test_data
-    p = knn(k, 20)
+    p = knn(k, 20, 30)
     p.fit(train_data, train_labels)
     return p.score(test_data, test_labels), p
 
 
-K = [2, 6, 12, 18]
-repeat = 3
+K = [7]
+repeat = 5
 knn_res = []
 test_size = 100
 ps = []
@@ -90,14 +101,15 @@ plt.xlabel('m')
 plt.ylabel('accuracy ratio')
 
 plt.plot(K, knn_res)
-plt.show()
+# plt.show()
 
 train_data, test_data = draw(A, test_size, 50, 20)
 train_data, train_labels = train_data
 test_data, test_labels = test_data
-p = ps[3]
-z1 = p.predict(test_data[0])
-z2 = test_labels[0]
-print(editdistance.eval(z1, z2))
-print(z1)
-print(z2)
+for p in ps:
+    mm = 0
+    for x, y in zip(test_data, test_labels):
+        z1 = p.predict(x)
+        z2 = y
+        mm += hamming2(z1, z2)
+    print(mm / len(test_labels))

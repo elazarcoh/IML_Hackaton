@@ -41,12 +41,14 @@ train_data, test_data = draw(A, test_size=100, xl=50, yl=20)
 train_data, train_labels = train_data
 test_data, test_labels = test_data
 def PCA():
-    covM = np.cov(train_data)
+    covM = np.cov(train_data.T)
     w, v = np.linalg.eig(covM)
     proj = [[] for _ in range(len(test_data))]
-    for i in range(15):
-        proj
-    scatter(proj[0, :], proj[1, :])
+    for i in range(len(test_data)):
+        for j in range(2):
+            proj[i].append(test_data[i] @ v[j])
+    proj = np.array(proj)
+    scatter(proj[:, 0], proj[:, 1])
     show()
 
 PCA()

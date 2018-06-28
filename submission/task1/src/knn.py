@@ -1,10 +1,9 @@
 import numpy as np
-
+import editdistance
 pred_out_file = '../output/predictions.txt'
 
 
-def hamming2(s1, s2):
-    """Calculate the Hamming distance between two bit strings"""
+def hamming(s1, s2):
     assert len(s1) == len(s2)
     return sum(c1 != c2 for c1, c2 in zip(s1, s2))
 
@@ -36,13 +35,13 @@ class knn:
 
     def k_nearest_neighbors_indices(self, x):
         dist = np.array(
-            [hamming2(x[-self.input_num_bits:], y[-self.input_num_bits:]) for y in self.X])
+            [editdistance.eval(x[-self.input_num_bits:], y[-self.input_num_bits:]) for y in self.X])
         k_nearest = np.argsort(dist)[:self.k]
         return k_nearest
 
     def score(self, data, true_labels):
         predictions = np.array([self.predict(x) for x in data])
-        g = (1 - (hamming2(x, y) / len(x)) for x, y in zip(predictions, true_labels))
+        g = (1 - (hamming(x, y) / len(x)) for x, y in zip(predictions, true_labels))
         return sum(g) / len(true_labels)
 
 

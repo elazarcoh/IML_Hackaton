@@ -122,10 +122,19 @@ from keras.models import Sequential
 #     p += seq_length  # move data pointer
 #     n += 1  # iteration counter
 
+np.random.seed(1337)
 
-mod = Sequential()
-mod.add(SimpleRNN(input_dim=50, output_dim=20, return_sequences=True))
-mod.add(TimeDistributed(Dense(output_dim = 1, activation  =  "sigmoid")))
-mod.compile(loss = "mse", optimizer = "Adam")
+sample_size = 256
+x_seed = [1, 0, 0, 0, 0, 0]
+y_seed = [1, 0.8, 0.6, 0, 0, 0]
 
-print(mod.predict(np.array([[[1],[0],[0],[0],[0],[0]]])))
+x_train = np.array([[x_seed] * sample_size]).reshape(sample_size,len(x_seed),1)
+y_train = np.array([[y_seed]*sample_size]).reshape(sample_size,len(y_seed),1)
+
+model=Sequential()
+model.add(SimpleRNN(input_dim  =  1, output_dim = 50, return_sequences = True))
+model.add(TimeDistributed(Dense(output_dim = 1, activation  =  "sigmoid")))
+model.compile(loss = "mse", optimizer = "rmsprop")
+model.fit(x_train, y_train, nb_epoch = 10, batch_size = 32)
+
+print(model.predict(np.array([[[1],[0],[0],[0],[0],[0]]])))

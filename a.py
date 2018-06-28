@@ -1,15 +1,9 @@
 import numpy as np
-import learner
 import matplotlib.pyplot as plt
 import editdistance as ed
 
-from keras.layers import SimpleRNN, TimeDistributed, Dense
-from keras.models import Sequential
-
-
-def prepare_data(data):
-    pass
-
+# from keras.layers import SimpleRNN, TimeDistributed, Dense
+# from keras.models import Sequential
 
 d = np.loadtxt('human.txt', dtype=str)
 A = []
@@ -38,55 +32,42 @@ def draw(data, test_size, xl, yl):
     test_data = np.array([list(map(int, s[-xl - yl:-yl])) for s in test_data])
     test_labels = np.array([list(map(int, s[-yl:])) for s in test_labels])
 
-    # return (train_data, train_labels), (test_data, test_labels)
-    return (np.expand_dims(train_data, axis=2), np.expand_dims(train_labels, axis=2)), \
-           (np.expand_dims(test_data, axis=2), np.expand_dims(test_labels, axis=2))
+    return (train_data, train_labels), (test_data, test_labels)
+    # return (np.expand_dims(train_data, axis=2), np.expand_dims(train_labels, axis=2)), \
+    #        (np.expand_dims(test_data, axis=2), np.expand_dims(test_labels, axis=2))
 
-# def knn_procedure(k, test_size,l):
-#     train_data, test_data = draw(A, test_size,)
-#     train_data, train_labels = train_data
-#     test_data, test_labels = test_data
-#     p = learner.knn(k)
-#     p.fit(train_data, train_labels)
-#     return p.score(test_data, test_labels)
-
-K = range(1, 50, 2)
-repeat = 10
-knn_res = []
-test_size = 100
-
-# for k in K:
-#     res = sum(knn_procedure(45, test_size,k) for _ in range(repeat)) / repeat
-#     knn_res.append(res)
-
-# print(np.mean(list(map(str.__len__,A))))
-# plt.hist(list(map(str.__len__,A)),80)
-# plt.show()
-
-# plt.figure(0)
-# plt.title("K nearest accuracy ratio")
-# plt.xticks(K)
-# plt.xlabel('m')
-# plt.ylabel('accuracy ratio')
-#
-# plt.plot(K, knn_res)
-# plt.show()
 
 train_data, test_data = draw(A, test_size=100, xl=50, yl=20)
 train_data, train_labels = train_data
 test_data, test_labels = test_data
+def PCA():
+    covM = np.cov(train_data)
+    w, v = np.linalg.eig(covM)
+    proj = train_data @ v[:50]
 
+
+PCA()
 # p = learner.knn(30)
 # p.fit(train_data, train_labels)
 
-
-def RNN(x, y):
-    mod = Sequential()
-    mod.add(SimpleRNN(input_dim=50, output_dim=20, return_sequences=True))
-    # mod.add(TimeDistributed(Dense(output_dim=1, activation="sigmoid")))
-    mod.compile(loss="mse", optimizer="Adam")
-    mod.fit(x, y, batch_size=20)
-    # print(mod.predict(np.array([[[1], [0], [0], [0], [0], [0]]])))
-
-
-RNN(train_data, train_labels)
+#
+# def RNN(x, y):
+#     model = Sequential()
+#     for _ in range(10):
+#         model.add(SimpleRNN(input_dim=1, output_dim=20, return_sequences=True))
+#         model.add(TimeDistributed(Dense(output_dim=1, activation="sigmoid")))
+#     model.compile(loss="hinge", optimizer="rmsprop")
+#     model.fit(x, y, nb_epoch=10, batch_size=32)
+#
+#     return model
+#
+#
+# model = RNN(train_data, train_labels)
+# l = 0
+# for x, y in zip(test_data, test_labels):
+#     res = model.predict(np.expand_dims(x, 2)).ravel()
+#     thr = np.mean(res)
+#     res[res >= thr] = 1
+#     res[res != 1] = 0
+#     l += (res != y.ravel()).sum()
+# print(l/ len(test_data))
